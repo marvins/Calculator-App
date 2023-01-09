@@ -25,4 +25,5 @@ target_link_libraries(
     calculator-tests
     GTest::gtest_main
     $<TARGET_OBJECTS:CALC_TGT_CORE>
+    $<TARGET_OBJECTS:CALC_TGT_MATH>
 )

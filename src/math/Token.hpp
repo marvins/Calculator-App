@@ -5,6 +5,12 @@
  */
 #pragma once
 
+// Project Libraries
+#include "../core/Enums.hpp"
+
+/**
+ * @brief Token class
+ */
 class Token
 {
     public:

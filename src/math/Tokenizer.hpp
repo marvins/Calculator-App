@@ -7,3 +7,12 @@
 
 // Project Libraries
 #include "Token.hpp"
+
+// C++ Libraries
+#include <string>
+#include <vector>
+
+/**
+ * @brief Tokenize the string
+ */
+std::vector<Token> Tokenize( const std::string& input );

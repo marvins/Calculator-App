@@ -50,6 +50,7 @@ for ARG in "$@"; do
         #  Number threads set
         -j)
             THREADS_SET=1
+            NUM_THREADS=''
             ;;
 
         *)
