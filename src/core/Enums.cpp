@@ -8,7 +8,7 @@
 /**************************************************/
 /*          Convert Token-Type to String          */
 /**************************************************/
-std::string To_String( TOKEN_TYPE tp )
+std::string TokenType2String( TOKEN_TYPE tp )
 {
     switch(tp)
     {
@@ -22,7 +22,12 @@ std::string To_String( TOKEN_TYPE tp )
             return "OPERATOR_RPARAM";
         case TOKEN_TYPE::OPERATOR_PLUS:
             return "OPERATOR_PLUS";
-
+        case TOKEN_TYPE::OPERATOR_MINUS:
+            return "OPERATOR_MINUS";
+        case TOKEN_TYPE::OPERATOR_TIMES:
+            return "OPERATOR_TIMES";
+        case TOKEN_TYPE::OPERATOR_DIVIDE:
+            return "OPERATOR_DIVIDE";
     }
     return "UNKNOWN";
 }

@@ -11,11 +11,14 @@
 /************************************************************/
 /*          Test the To_String Method for token type        */
 /************************************************************/
-TEST( Enums, TOKEN_TYPE_To_String )
+TEST( Enums, TokenType2String )
 {
-    ASSERT_EQ( To_String( TOKEN_TYPE::UNKNOWN ),          "UNKNOWN" );
-    ASSERT_EQ( To_String( TOKEN_TYPE::NUMBER ),           "NUMBER" );
-    ASSERT_EQ( To_String( TOKEN_TYPE::OPERATOR_LPARAM ),  "OPERATOR_LPARAM" );
-    ASSERT_EQ( To_String( TOKEN_TYPE::OPERATOR_RPARAM ),  "OPERATOR_RPARAM" );
-    ASSERT_EQ( To_String( TOKEN_TYPE::OPERATOR_PLUS ),    "OPERATOR_PLUS" );
+    ASSERT_EQ( TokenType2String( TOKEN_TYPE::UNKNOWN ),          "UNKNOWN" );
+    ASSERT_EQ( TokenType2String( TOKEN_TYPE::NUMBER ),           "NUMBER" );
+    ASSERT_EQ( TokenType2String( TOKEN_TYPE::OPERATOR_LPARAM ),  "OPERATOR_LPARAM" );
+    ASSERT_EQ( TokenType2String( TOKEN_TYPE::OPERATOR_RPARAM ),  "OPERATOR_RPARAM" );
+    ASSERT_EQ( TokenType2String( TOKEN_TYPE::OPERATOR_PLUS ),    "OPERATOR_PLUS" );
+    ASSERT_EQ( TokenType2String( TOKEN_TYPE::OPERATOR_MINUS ),   "OPERATOR_MINUS" );
+    ASSERT_EQ( TokenType2String( TOKEN_TYPE::OPERATOR_TIMES ),   "OPERATOR_TIMES" );
+    ASSERT_EQ( TokenType2String( TOKEN_TYPE::OPERATOR_DIVIDE ),  "OPERATOR_DIVIDE" );
 }

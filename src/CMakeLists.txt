@@ -5,12 +5,12 @@
 #    Purpose: Build the calculator application
 #
 
-
 #----------------------------------------#
 #-          Build Target Objects        -#
 #----------------------------------------#
 add_subdirectory( core )
 add_subdirectory( math )
+
 
 #----------------------------------------#
 #-          Calculator Sources          -#
@@ -31,4 +31,5 @@ set( CALC_SOURCES
 add_executable( calculator ${CALC_SOURCES}
                 $<TARGET_OBJECTS:CALC_TGT_CORE> )
 
-
+target_link_libraries( calculator 
+                       ${Boost_LIBRARIES} )

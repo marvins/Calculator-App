@@ -19,14 +19,17 @@ enum class TOKEN_TYPE
     OPERATOR_LPARAM = 1,
     OPERATOR_RPARAM = 2,
     OPERATOR_PLUS   = 3,
+    OPERATOR_MINUS  = 4,
+    OPERATOR_TIMES  = 5,
+    OPERATOR_DIVIDE = 6,
 }; // end of TOKEN_TYPE Enumeration
 
 /**
  * @brief Convert Token-Type to string
  */
-std::string To_String( TOKEN_TYPE tp );
+std::string TokenType2String( TOKEN_TYPE tp );
 
 /**
  * @brief Convert string to token type
  */
-TOKEN_TYPE From_String( const std::string& tp );
+TOKEN_TYPE String2TokenType( const std::string& tp );

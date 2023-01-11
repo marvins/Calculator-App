@@ -20,6 +20,11 @@ class Token
         /**
          * @brief Parameterized Constructor
          */
+        Token( TOKEN_TYPE tp );
+
+        /**
+         * @brief Parameterized Constructor
+         */
         Token( TOKEN_TYPE         tp,
                const std::string& value );
 
@@ -32,6 +37,11 @@ class Token
          * @brief Get Token Value 
          */
         std::string Get_Value() const;
+
+        /**
+         * @brief Convert to log-friendly string
+         */
+        std::string To_String() const;
 
     private:
 

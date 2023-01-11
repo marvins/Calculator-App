@@ -15,15 +15,17 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(googletest)
 
-file(GLOB SRCS core/*.cpp)
+file(GLOB SRCS core/*.cpp math/*.cpp )
 
 ADD_EXECUTABLE( calculator-tests ${SRCS})
 
 include_directories( "${CMAKE_SOURCE_DIR}/src" )
+
 
 target_link_libraries(
     calculator-tests
     GTest::gtest_main
     $<TARGET_OBJECTS:CALC_TGT_CORE>
     $<TARGET_OBJECTS:CALC_TGT_MATH>
+    ${Boost_LIBRARIES}
 )

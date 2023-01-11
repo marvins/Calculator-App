@@ -11,6 +11,10 @@
 add_library( CALC_TGT_CORE OBJECT 
                     Enums.cpp
                     Enums.hpp
+                    Logging_Utilities.cpp 
+                    Logging_Utilities.hpp
                     Options.cpp
-                    Options.hpp )
+                    Options.hpp
+                    String_Utilities.cpp
+                    String_Utilities.hpp )
 
