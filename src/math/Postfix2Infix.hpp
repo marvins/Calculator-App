@@ -14,4 +14,4 @@
 /**
  * @brief Convert Postfix to Infix Notation using Shunting Tree algorithm
  */
-std::vector<Token> Postfix2Infix_ShuntingTree( const std::vector<Token>& tokens );
+std::vector<Token> Postfix2Infix_ShuntingYard( const std::vector<Token>& tokens );

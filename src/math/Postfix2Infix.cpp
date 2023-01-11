@@ -6,11 +6,11 @@
 #include "Postfix2Infix.hpp"
 
 /*************************************************************************************/
-/*          Convert Postfix to Infix Notation using Shunting Tree algorithm          */
+/*          Convert Postfix to Infix Notation using Shunting Yard algorithm          */
 /*************************************************************************************/
-std::vector<Token> Postfix2Infix_ShuntingTree( const std::vector<Token>& tokens )
+std::vector<Token> Postfix2Infix_ShuntingYard( const std::vector<Token>& tokens )
 {
     // Iterate over each token
-    
+
 }
 
