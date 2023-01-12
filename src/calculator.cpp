@@ -11,6 +11,7 @@
 
 // Project Libraries
 #include "core/Options.hpp"
+#include "engine/Engine.hpp"
 #include "math/Operator_Factory.hpp"
 
 
@@ -21,6 +22,9 @@ int main( int argc, char* argv[] )
 
     // Build the Operator Factory
     auto opfac = std::make_shared<Operator_Factory>( options.operation_list );
-    
-    return 0;
+
+    // Construct the UI
+    auto engine = std::make_shared<Engine>( options.engine_config );
+
+    return engine->Run();
 }

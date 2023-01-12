@@ -17,6 +17,10 @@ Options Parse( int argc, char* argv[] )
 
     // Initialize the list of operations
     output.operation_list.push_back( std::make_shared<Operation_Plus>() );
+    output.operation_list.push_back( std::make_shared<Operation_Minus>() );
+    output.operation_list.push_back( std::make_shared<Operation_Times>() );
+    output.operation_list.push_back( std::make_shared<Operation_Divide>() );
+    output.operation_list.push_back( std::make_shared<Operation_Power>() );
 
     return output;
 }

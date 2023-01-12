@@ -9,6 +9,7 @@
 #-          Build Target Objects        -#
 #----------------------------------------#
 add_subdirectory( core )
+add_subdirectory( engine )
 add_subdirectory( math )
 
 #----------------------------------------#
@@ -17,6 +18,7 @@ add_subdirectory( math )
 add_executable( calculator 
                 calculator.cpp
                 $<TARGET_OBJECTS:CALC_TGT_CORE>
+                $<TARGET_OBJECTS:CALC_TGT_ENGN>
                 $<TARGET_OBJECTS:CALC_TGT_MATH> )
 
 target_link_libraries( calculator 

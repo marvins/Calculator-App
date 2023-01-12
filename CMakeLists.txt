@@ -16,6 +16,11 @@ set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR} )
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 17)
 
+#-------------------------------------#
+#-     Add Manual CMake Scripts      -#
+#-------------------------------------#
+LIST( APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules" )
+
 #--------------------------------#
 #-          Find Boost          -#
 #--------------------------------#
@@ -28,6 +33,18 @@ message( "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}" )
 message( "Boost_LIBRARIES: ${Boost_LIBRARIES}" )
 
 include_directories( ${Boost_INCLUDE_DIRS} )
+
+#------------------------------------#
+#-          Find Allegro            -#
+#------------------------------------#
+find_package(PkgConfig REQUIRED)
+pkg_check_modules( Allegro REQUIRED allegro )
+
+message( "Allegro_FOUND: ${Allegro_FOUND}" )
+message( "Allegro_INCLUDEDIR: ${Allegro_INCLUDEDIR}" )
+message( "Allegro_LIBRARIES: ${Allegro_LIBRARIES}" )
+
+include_directories( ${Allegro_INCLUDEDIR} )
 
 
 #  Add the executable

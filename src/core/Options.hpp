@@ -10,6 +10,7 @@
 #include <vector>
 
 // Project Libraries
+#include "../engine/Engine_Config.hpp"
 #include "../math/operators/Operation_Base.hpp"
 
 /**
@@ -24,6 +25,9 @@ class Options
 
         /// List of Operators
         std::vector<Operation_Base::ptr_t> operation_list;
+
+        /// Engine Configuration
+        Engine_Config engine_config;
 
 }; // End of Options Class
 
