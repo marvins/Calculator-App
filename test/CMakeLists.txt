@@ -15,7 +15,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(googletest)
 
-file(GLOB SRCS core/*.cpp math/*.cpp )
+file(GLOB SRCS core/*.cpp math/*.cpp unit-test/*.*pp )
 
 ADD_EXECUTABLE( calculator-tests ${SRCS})
 

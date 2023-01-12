@@ -15,7 +15,8 @@
 /************************************/
 /*          Tokenize String         */
 /************************************/
-std::vector<Token> Tokenize( const std::string& input_str )
+std::vector<Token> Tokenize( const std::string&      input_str,
+                             Operator_Factory::ptr_t opfac )
 {
     std::vector<Token> tokens;
     std::string input = input_str;
@@ -55,19 +56,37 @@ std::vector<Token> Tokenize( const std::string& input_str )
         // Division Operator
         else if( part.size() == 1 && part[0] == '/' )
         {
-            tokens.push_back( Token( TOKEN_TYPE::OPERATOR_TIMES ) );
+            tokens.push_back( Token( TOKEN_TYPE::OPERATOR_DIVIDE ) );
         }
 
         // Power Operator
+        else if( part.size() == 1 && part[0] == '^' )
+        {
+            tokens.push_back( Token( TOKEN_TYPE::OPERATOR_POWER ) );
+        }
 
         // Left Parenthesis
+        else if( part.size() == 1 && part[0] == '(' )
+        {
+            tokens.push_back( Token( TOKEN_TYPE::OPERATOR_LPARAM ) );
+        }
 
         // Right Parenthesis
+        else if( part.size() == 1 && part[0] == ')' )
+        {
+            tokens.push_back( Token( TOKEN_TYPE::OPERATOR_RPARAM ) );
+        }
 
         // Number
         else if( Is_Number( part ) )
         {
             tokens.push_back( Token( TOKEN_TYPE::NUMBER, part ) );
+        }
+
+        // Check if Function
+        else if( opfac->Is_Operation( part ) )
+        {
+            tokens.push_back( Token( TOKEN_TYPE::FUNCTION, part ) );
         }
 
         // Otherwise, error

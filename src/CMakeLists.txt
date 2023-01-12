@@ -11,25 +11,13 @@
 add_subdirectory( core )
 add_subdirectory( math )
 
-
-#----------------------------------------#
-#-          Calculator Sources          -#
-#----------------------------------------#
-set( CALC_SOURCES
-    engine/Engine.cpp
-    engine/Engine.hpp
-    math/Token.cpp
-    math/Token.hpp
-    math/Tokenizer.cpp
-    math/Tokenizer.hpp
-    calculator.cpp 
-)
-
 #----------------------------------------#
 #-          Build the Executable        -#
 #----------------------------------------#
-add_executable( calculator ${CALC_SOURCES}
-                $<TARGET_OBJECTS:CALC_TGT_CORE> )
+add_executable( calculator 
+                calculator.cpp
+                $<TARGET_OBJECTS:CALC_TGT_CORE>
+                $<TARGET_OBJECTS:CALC_TGT_MATH> )
 
 target_link_libraries( calculator 
                        ${Boost_LIBRARIES} )

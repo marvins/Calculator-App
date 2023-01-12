@@ -6,6 +6,7 @@
 #pragma once
 
 // Project Libraries
+#include "Operator_Factory.hpp"
 #include "Token.hpp"
 
 // C++ Libraries
@@ -15,4 +16,5 @@
 /**
  * @brief Tokenize the string
  */
-std::vector<Token> Tokenize( const std::string& input );
+std::vector<Token> Tokenize( const std::string&      input_str,
+                             Operator_Factory::ptr_t opfac );

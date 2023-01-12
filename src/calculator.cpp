@@ -11,13 +11,16 @@
 
 // Project Libraries
 #include "core/Options.hpp"
+#include "math/Operator_Factory.hpp"
+
 
 int main( int argc, char* argv[] )
 {
     // Parse the command-line options
     auto options = Parse( argc, argv );
 
-
+    // Build the Operator Factory
+    auto opfac = std::make_shared<Operator_Factory>( options.operation_list );
     
     return 0;
 }

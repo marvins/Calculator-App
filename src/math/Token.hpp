@@ -34,9 +34,16 @@ class Token
         TOKEN_TYPE Get_Type() const;
 
         /**
-         * @brief Get Token Value 
+         * @brief Get the token's value
          */
         std::string Get_Value() const;
+
+        /**
+         * @brief Get Token Value other than string 
+         */
+        template<typename TP>
+        TP Get_Value() const;
+
 
         /**
          * @brief Convert to log-friendly string

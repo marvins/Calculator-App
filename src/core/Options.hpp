@@ -7,6 +7,10 @@
 
 // C++ Libraries
 #include <filesystem>
+#include <vector>
+
+// Project Libraries
+#include "../math/operators/Operation_Base.hpp"
 
 /**
  * @brief Configuration Class
@@ -17,6 +21,9 @@ class Options
 
         /// Application Name
         std::filesystem::path application_name;
+
+        /// List of Operators
+        std::vector<Operation_Base::ptr_t> operation_list;
 
 }; // End of Options Class
 

@@ -42,6 +42,15 @@ std::string Token::Get_Value() const
     return m_value;
 }
 
+/****************************************/
+/*          Get the Token Value         */
+/****************************************/
+template <>
+double Token::Get_Value<double>() const
+{
+    return std::stod( m_value );
+}
+
 /************************************/
 /*          Convert to String       */
 /************************************/

@@ -8,6 +8,9 @@
 // Project Libaries
 #include <math/Tokenizer.hpp>
 
+// Test Utilities
+#include "../unit-test/Unit_Test_Utilities.hpp"
+
 /*******************************************************/
 /*          Test the Tokenizer w/ simple string        */
 /*******************************************************/
@@ -16,8 +19,10 @@ TEST( Tokenizer, Tokenize_Test01 )
     // simple string
     std::string input = "3 + 4.3";
 
+    auto opfac = Create_Operator_Factory();
+
     // Tokenize the input string
-    auto tokens = Tokenize( input );
+    auto tokens = Tokenize( input, opfac );
 
     // verify there are 3 tokens
     ASSERT_EQ( tokens.size(), 3 );
