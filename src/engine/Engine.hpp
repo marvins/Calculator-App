@@ -50,6 +50,9 @@ class Engine
         Engine_Config m_config;
 
         /// Allegro Contexts
-        ALLEGRO::Context::ptr_t m_context;
+        ALLEGRO::Context::ptr_t m_ui_context;
+
+        /// Session Context
+        Session_Context m_session_context;
 
 }; // End of Engine Class

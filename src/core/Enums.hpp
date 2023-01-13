@@ -51,3 +51,10 @@ enum class DIRECTION
 }; // end of enum ASSOCIATIVITY
 
 DIRECTION Get_Associativity( TOKEN_TYPE tp );
+
+
+enum class Window
+{
+    CALCULATOR = 0,
+    
+}; // End of Window Enum
