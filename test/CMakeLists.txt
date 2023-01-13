@@ -28,4 +28,6 @@ target_link_libraries(
     $<TARGET_OBJECTS:CALC_TGT_CORE>
     $<TARGET_OBJECTS:CALC_TGT_MATH>
     ${Boost_LIBRARIES}
+    ${Allegro_LIBRARIES}
+    ${AllegroFont_LIBRARIES}
 )

@@ -26,7 +26,11 @@ Build_Software()
 
     cd ${BUILD_TYPE}
 
-    cmake ..
+    if [ "${BUILD_TYPE}" = 'debug' ]; then
+        CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_BUILD_TYPE=Debug"
+    fi
+
+    cmake ${CMAKE_FLAGS} ..
 
     make -j ${NUM_THREADS}
 
@@ -51,6 +55,10 @@ for ARG in "$@"; do
         -j)
             THREADS_SET=1
             NUM_THREADS=''
+            ;;
+
+        --debug)
+            BUILD_TYPE=debug
             ;;
 
         *)

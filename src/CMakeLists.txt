@@ -22,4 +22,6 @@ add_executable( calculator
                 $<TARGET_OBJECTS:CALC_TGT_MATH> )
 
 target_link_libraries( calculator 
-                       ${Boost_LIBRARIES} )
+                       ${Boost_LIBRARIES}
+                       ${Allegro_LIBRARIES}
+                       ${AllegroFont_LIBRARIES} )

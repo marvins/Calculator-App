@@ -9,7 +9,6 @@
 #-    Build the Engine Module     -#
 #----------------------------------#
 add_library( CALC_TGT_ENGN OBJECT 
-                    allegro/Allegro_Utilities.cpp 
                     allegro/Allegro_Utilities.hpp
                     Engine.cpp 
                     Engine.hpp 
