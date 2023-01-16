@@ -13,10 +13,26 @@ ALLEGRO_COLOR  Color_Profile::Get_Background_Color() const
     return m_background_color;
 }
 
+/************************************/
+/*          Get Grid Color          */
+/************************************/
+ALLEGRO_COLOR Color_Profile::Get_Grid_Color() const
+{
+    return m_grid_color;
+}
+
+/************************************************/
+/*          Get the Keyboard Font Color         */
+/************************************************/
+ALLEGRO_COLOR Color_Profile::Get_Keyboard_Font_Color() const
+{
+    return m_keyboard_font_color;
+}
+
 /********************************************/
 /*          Get the Max Screen Size         */
 /********************************************/
-std::tuple<int,int>  Engine_Config::Get_Max_Screen_Size() const
+Size Engine_Config::Get_Max_Screen_Size() const
 {
     return m_max_screen_size;
 }

@@ -33,7 +33,7 @@ std::vector<Token> Tokenize( const std::string&      input_str,
     // Iterate over each part
     for( const auto& part : parts )
     {
-        BOOST_LOG_TRIVIAL(info) << "Part [" << part << "]";
+        //BOOST_LOG_TRIVIAL(info) << "Part [" << part << "]";
 
         // Plus Operator
         if( part.size() == 1 && part[0] == '+' )

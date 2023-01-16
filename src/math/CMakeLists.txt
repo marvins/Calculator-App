@@ -15,8 +15,12 @@ add_library( CALC_TGT_MATH OBJECT
                     operators/Operation_Base.hpp
                     Infix2Postfix.cpp 
                     Infix2Postfix.hpp
+                    Math_Utilities.hpp
                     Operator_Factory.cpp 
                     Operator_Factory.hpp
+                    Point.hpp
+                    Rectangle.hpp
+                    Size.hpp
                     Solver.cpp
                     Solver.hpp
                     Token.cpp

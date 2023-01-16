@@ -1,0 +1,46 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Calculator (Release)",
+            "type": "shell",
+            "command": "./build.sh -m -j 4",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build Calculator (Debug)",
+            "type": "shell",
+            "command": "./build.sh -m --debug -j 4",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Run Calculator Tests (Debug)",
+            "type": "shell",
+            "command": "./debug/calculator-tests",
+            "dependsOn":"Build Calculator (Debug)",
+            "problemMatcher": [],
+            "group": {
+                "kind":"test"
+            }
+        },
+        {
+            "label": "Run Calculator (Debug)",
+            "type": "shell",
+            "command": "./debug/calculator",
+            "dependsOn":"Build Calculator (Debug)",
+            "problemMatcher": [],
+            "group": {
+                "kind":"test"
+            }
+        } 
+}

@@ -38,13 +38,17 @@ include_directories( ${Boost_INCLUDE_DIRS} )
 #-          Find Allegro            -#
 #------------------------------------#
 find_package(PkgConfig REQUIRED)
-pkg_check_modules( Allegro REQUIRED allegro-5 )
-pkg_check_modules( AllegroFont REQUIRED allegro_font-5 )
+pkg_check_modules( Allegro           REQUIRED allegro-5 )
+pkg_check_modules( AllegroFont       REQUIRED allegro_font-5 )
+pkg_check_modules( AllegroPrimitives REQUIRED allegro_primitives-5 )
+pkg_check_modules( AllegroTTF        REQUIRED allegro_ttf-5 )
 
 message( "Allegro_FOUND: ${Allegro_FOUND}" )
-message( "Allegro_INCLUDEDIR: ${Allegro_INCLUDEDIR}" )
-message( "Allegro_LIBRARIES: ${Allegro_LIBRARIES}" )
-message( "Allegro_LIBRARIES: ${AllegroFont_LIBRARIES}" )
+message( "Allegro_INCLUDEDIR:          ${Allegro_INCLUDEDIR}" )
+message( "Allegro_LIBRARIES:           ${Allegro_LIBRARIES}" )
+message( "AllegroFont_LIBRARIES:       ${AllegroFont_LIBRARIES}" )
+message( "AllegroPrimitives_LIBRARIES: ${AllegroPrimitives_LIBRARIES}" )
+message( "AllegroTTF_LIBRARIES:        ${AllegroTTF_LIBRARIES}" )
 
 include_directories( ${Allegro_INCLUDEDIR} )
 

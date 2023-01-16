@@ -24,4 +24,6 @@ add_executable( calculator
 target_link_libraries( calculator 
                        ${Boost_LIBRARIES}
                        ${Allegro_LIBRARIES}
-                       ${AllegroFont_LIBRARIES} )
+                       ${AllegroFont_LIBRARIES}
+                       ${AllegroPrimitives_LIBRARIES}
+                       ${AllegroTTF_LIBRARIES} )

@@ -58,3 +58,41 @@ enum class Window
     CALCULATOR = 0,
     
 }; // End of Window Enum
+
+
+enum class ButtonType
+{
+    NUMBER_0 /*< Number 0 */,
+    NUMBER_1 /*< Number 1 */,
+    NUMBER_2,
+    NUMBER_3,
+    NUMBER_4,
+    NUMBER_5,
+    NUMBER_6,
+    NUMBER_7,
+    NUMBER_8,
+    NUMBER_9,
+    DECIMAL,
+    SOLVE,
+    MENU,
+    PLUS,
+    MINUS,
+    TIMES,
+    DIVIDE,
+    POWER,
+}; // End of Button Enum
+
+/**
+ * @brief Convert ButtonType Enum to String
+ */
+std::string ButtonTypeToString( ButtonType tp );
+
+/**
+ * @brief Convert ButtonType to Screen Text
+ */
+std::string ButtonTypeToScreenText( ButtonType tp );
+
+/**
+ * @brief Convert String to ButtonType
+ */
+ButtonType StringToButtonType( const std::string& tp );

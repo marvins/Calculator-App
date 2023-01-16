@@ -11,6 +11,7 @@
 // Project Libraries
 #include "allegro/Allegro_Utilities.hpp"
 #include "Engine_Config.hpp"
+#include "Session_Context.hpp"
 
 /**
  * @class Engine
@@ -43,6 +44,11 @@ class Engine
          * @brief Render the screen 
          */
         int Render_Screen();
+
+        /**
+         * @brief Render Calculator Screen
+         */
+        int Render_Calculator();
 
     private:
 

@@ -30,9 +30,23 @@ Build_Software()
         CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_BUILD_TYPE=Debug"
     fi
 
+    echo 'Running CMake'
     cmake ${CMAKE_FLAGS} ..
+    RES="$?"
+    echo "CMake result: ${RES}"
+    if [ ! "$RES" = '0' ]; then
+        echo "error running CMake" 
+        exit ${RES}
+    fi
 
+    echo 'Running Make'
     make -j ${NUM_THREADS}
+    RES="$?"
+    echo "make result: ${RES}"
+    if [ ! "$RES" = '0' ]; then
+        echo "error running make" 
+        exit ${RES}
+    fi
 
     cd ..
 }
