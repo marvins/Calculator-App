@@ -3,8 +3,7 @@
 -- desc:   Simple calculator solver
 -- script: lua
 
---input_str = "3 + 4 x 2 / (1 - 5 ) ^2 ^2"
-input_str = "3 + 4 - 2.3"
+input_str = "3 + 4 x 2 / ( 1 - 5 ) ^ 2 ^ 3"
 
 cursor_x = 0
 cursor_y = 0
@@ -27,6 +26,22 @@ TK_NUMBER   = 8
 
 LEFT = 0
 RIGHT = 1
+
+function Print_Token( token )
+    if( #token > 1 ) then
+        print( string.format( "%d, %d %f", #token, token[1], token[2] ) )
+    else
+        print( string.format( "%d, %d", #token, token[1] ) )
+    end
+end
+
+function Print_Tokens( tokens )
+    -- Print Tokens
+    for idx = 1, #tokens, 1
+    do 
+        Print_Token( tokens[idx] )
+    end
+end
 
 function Precedence( operator )
     if ( operator == TK_OP_PLUS ) then
@@ -74,6 +89,12 @@ function Tokenize( input_str )
             value = { TK_OP_TIMES }
         elseif( str == "/" ) then
             value = { TK_OP_DIV }
+        elseif( str == "^" ) then
+            value = { TK_OP_POWER }
+        elseif( str == "(" ) then
+            value = { TK_OP_LPAR }
+        elseif( str == ")" ) then
+            value = { TK_OP_RPAR }
         else
             value = { TK_NUMBER, tonumber(str) }
         end
@@ -83,47 +104,113 @@ function Tokenize( input_str )
     return tokens
 end
 
+function Process_Operator_Token( token )
+    
+    num_params = 2
+    if ( token[1] == TK_OP_PLUS ) then
+        method = function ( opands ) return { TK_NUMBER, ( opands[#opands-1][2] + opands[#opands][2] ) } end
+    elseif ( token[1] == TK_OP_MINUS ) then
+        method = function ( opands ) return { TK_NUMBER, ( opands[#opands-1][2] - opands[#opands][2] ) } end
+    elseif ( token[1] == TK_OP_TIMES ) then
+        method = function ( opands ) return { TK_NUMBER, ( opands[#opands-1][2] * opands[#opands][2] ) } end
+    elseif ( token[1] == TK_OP_DIV ) then
+        method = function ( opands ) return { TK_NUMBER, ( opands[#opands-1][2] / opands[#opands][2] ) } end
+    elseif ( token[1] == TK_OP_POWER ) then
+        method = function ( opands ) return { TK_NUMBER, math.pow( opands[#opands-1][2], opands[#opands][2] ) } end
+    end
+    return { method, num_params }
+end
+
 function Infix2RPN_Shunting_Yard( tokens )
 
     -- output queue
     output_queue = {}
-    local oque_idx = 1
 
     -- operator stack
     operator_stack = {}
-    local opstack_idx = 1
 
     -- Iterate over each token
     for idx = 1, #tokens, 1 do
 
         -- If the token is a number, add to the output queue
-        if ( ( #tokens[idx] > 1 ) and ( tokens[idx][1] == TK_NUMBER ) ) then
+        if ( tokens[idx][1] == TK_NUMBER ) then
             table.insert( output_queue, tokens[idx] )
 
         -- If the token is a left parenthesis
         elseif ( tokens[idx][1] == TK_OP_LPAR ) then
-            operator_stack[opstack_idx] = tokens[idx]
-            opstack_idx = opstack_idx + 1
+            table.insert( operator_stack, tokens[idx] )
         
-            -- If the token is an operator, 
+        -- If the token is a right parenthesis
+        elseif ( tokens[idx][1] == TK_OP_RPAR ) then
+            
+            while( operator_stack[#operator_stack][1] ~= TK_OP_LPAR )
+            do
+                table.insert( output_queue, operator_stack[#operator_stack] )
+                table.remove( operator_stack, #operator_stack )
+            end
+
+            -- dump the left parenthesis
+            table.remove( operator_stack, #operator_stack )
+            
+            -- todo:  Check if function is on top
+
+        -- If the token is an operator, 
         else
             -- If the token is an operator, check the top of the operator stack
             --   1.  The operator is not left parenthesis
             --   2.  The operator has higher precedence than the token operator
             --   3.  The operators are both equal precedence and the current token is left associative
-            
-            while( ( #operator_stack >= opstack_idx ) and 
-                   ( operator_stack[opstack_idx][1] != TK_OP_LPAR ) and 
-                   ( ( Precedence( tokens[idx][1] ) > Precedence( operator_stack[opstack_idx][1] ) ) 
+            while( ( #operator_stack > 0 ) and ( operator_stack[#operator_stack][1] ~= TK_OP_LPAR ) and 
+                   ( ( Precedence( tokens[idx][1] ) < Precedence( operator_stack[#operator_stack][1] ) ) 
                      or 
-                     ( ( Precedence( tokens[idx][1] ) == Precedence( operator_stack[opstack_idx][1] ) ) and Associativity( tokens[idx][1] ) == LEFT ) ) 
+                     ( ( Precedence( tokens[idx][1] ) == Precedence( operator_stack[#operator_stack][1] ) ) and Associativity( tokens[idx][1] ) == LEFT ) ) ) 
             do
-                output_queue[oque_idx] = operator_stack[opstack_idx]
-                oque_idx = oque_idx + 1
-                operator_stack[opstack_idx] = tokens[idx]
+                table.insert( output_queue, operator_stack[#operator_stack] )
+                table.remove( operator_stack, #operator_stack )
             end
+            table.insert( operator_stack, tokens[idx])
         end
     end
+
+    -- Pop everything off the operator stack
+    while( #operator_stack > 0 ) do
+        table.insert( output_queue, operator_stack[#operator_stack] )
+        table.remove( operator_stack, #operator_stack )
+    end
+
+    return output_queue
+end
+
+function Solve_RPN( tokens )
+
+    operand_queue = {}
+    
+    -- Process all tokens
+    while ( #tokens > 0 ) do
+
+        -- Clear off all numbers from the list of tokens
+        while( tokens[1][1] == TK_NUMBER ) do
+            table.insert( operand_queue, tokens[1] )
+            table.remove( tokens, 1 )
+        end
+
+        -- Get the next operator
+        op = Process_Operator_Token( tokens[1] )
+        table.remove( tokens, 1 )
+
+        -- Process with the required arguments
+        result = op[1]( operand_queue )
+
+        -- Remove the processed tokens
+        for x = 1, op[2], 1 do
+            table.remove( operand_queue, #operand_queue )
+        end
+
+        -- add result to end of operand queue
+        table.insert( operand_queue, result )
+    end
+
+    return operand_queue[#operand_queue]
 end
 
 function TIC()
@@ -153,10 +240,10 @@ function TIC()
     tokens = Infix2RPN_Shunting_Yard( tokens )
       
     -- Compute the result
-    result = "?"
+    result = Solve_RPN( tokens )
 
     -- Print the input equation
-    Print( input_str .. "=" .. result, 10, 130, COLOR_WHITE )
+    Print( input_str .. "=" .. result[2], 10, 130, COLOR_WHITE )
 end
 
 -- <TILES>
