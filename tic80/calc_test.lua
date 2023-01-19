@@ -8,7 +8,7 @@ luaunit = require('luaunit')
 
 
 
---input_str = "3 + 4 x 2 / (1 - 5 ) ^2 ^2"
+--input_str = "3 + 4 x 2"
 
 cursor_x = 0
 cursor_y = 0
@@ -96,7 +96,7 @@ SCR_KEY_PGU = { 196,  70, 234,   82, "PGU",  0, { TK_TASK_PGUP } }
 LEFT = 0
 RIGHT = 1
 
-function Print_Token( token )
+function Print_Token( token, x, y )
     if( #token > 1 ) then
         print( string.format( "%d, %d %f", #token, token[1], token[2] ) )
     else
@@ -104,11 +104,11 @@ function Print_Token( token )
     end
 end
 
-function Print_Tokens( tokens )
+function Print_Tokens( tokens, x, y )
     -- Print Tokens
     for idx = 1, #tokens, 1
     do 
-        Print_Token( tokens[idx] )
+        Print_Token( tokens[idx], x, y + (8*idx) )
     end
 end
 
@@ -167,36 +167,118 @@ function Is_Function( token )
     end
 end
 
+function Is_Char_Number( value )
+    if ( ( value == "." ) or
+         ( value == "0" ) or
+         ( value == "1" ) or
+         ( value == "2" ) or
+         ( value == "3" ) or
+         ( value == "4" ) or
+         ( value == "5" ) or
+         ( value == "6" ) or
+         ( value == "7" ) or
+         ( value == "8" ) or
+         ( value == "9" ) ) then
+            return true
+    else
+        return false
+    end
+end
+
 function Print( text, cx, cy, color )
     print( text, cx, cy, color ) 
 end
 
 function Tokenize( input_str )
     tokens = {}
-    for str in string.gmatch( input_str, "%S+" )
+    working_str = ""
+    working_tk  = nil
+
+    -- Iterate over each character in the string
+    for idx = 1, #input_str, 1 
     do
-        -- Check for + operator
-        local value = nil
-        if ( str == "+" ) then
-            value = { TK_OP_PLUS }
-        elseif( str == "-" ) then  
-            value = { TK_OP_MINUS }
-        elseif( str == "x" ) then
-            value = { TK_OP_TIMES }
-        elseif( str == "/" ) then
-            value = { TK_OP_DIV }
-        elseif( str == "^" ) then
-            value = { TK_OP_POWER }
-        elseif( str == "(" ) then
-            value = { TK_OP_LPAR }
-        elseif( str == ")" ) then
-            value = { TK_OP_RPAR }
-        else
-            value = { TK_NUMBER, tonumber(str) }
+
+        -- Check if character is parenthesis
+        if ( string.sub( input_str, idx, idx ) == "(" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_LPAR } )
+
+        elseif ( string.sub( input_str, idx, idx ) == ")" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_RPAR } )
+
+        -- Check if character is an operator
+        elseif ( string.sub( input_str, idx, idx ) == "+" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_PLUS } )
+
+        elseif( string.sub( input_str, idx, idx ) == "-" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_MINUS } )
+
+        elseif( string.sub( input_str, idx, idx ) == "x" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_TIMES } )
+
+        elseif( string.sub( input_str, idx, idx ) == "/" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_DIV } )
+
+        elseif( string.sub( input_str, idx, idx ) == "^" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_POWER } )
+        
+        -- Check if number
+        elseif( Is_Char_Number( string.sub( input_str, idx, idx ) ) ) then
+            if ( working_tk == nil ) then
+                working_tk = TK_NUMBER
+            end
+            working_str = working_str .. string.sub( input_str, idx, idx )
+
+        -- Blank Character
+        elseif ( string.sub( input_str, idx, idx ) == " " ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
         end
-        table.insert( tokens, value )
-    end    
+
+    end
    
+    -- Cleanup
+    if( working_tk == TK_NUMBER ) then
+        table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+    end
+
     return tokens
 end
 
@@ -444,11 +526,12 @@ function TIC()
             infix_tokens = Tokenize( console_text )
         
             -- Convert to RPN
-            rpn_tokens = Infix2RPN_Shunting_Yard( infix_tokens )
+            local rpn_tokens = Infix2RPN_Shunting_Yard( infix_tokens )
+            Print_Tokens( rpn_tokens, 16, 2 )
       
             -- Compute the result
-            result = Solve_RPN( rpn_tokens )
-            console_text = string.format( "%d", result[2] )
+            --result = Solve_RPN( rpn_tokens )
+            --console_text = string.format( "%d", result[2] )
 
         elseif ( token[1] == TK_TASK_CLR ) then
             console_text = ""
@@ -479,21 +562,36 @@ function TIC()
     print( string.format( "> LOCK: %s", CURSOR_LOCK ), 8*2, 8*8 )
 end
 
-function testTokenize()
+function testTokenize01()
+
+    -- Test the tokenize function
+    local input_str = "3 + 4 - 2.3"
+    local tokens = Tokenize( input_str )
+    luaunit.assertEquals( #tokens, 5 )
+end
+
+function testTokenize02()
     -- Test the tokenize function
 
-    local input_str = "3 + 4 - 2.3"
-    tokens = Tokenize( input_str )
+    local input_str = "3+4-2.3"
+    local tokens = Tokenize( input_str )
+    Print_Tokens( tokens, 16, 32 )
+
     luaunit.assertEquals( #tokens, 5 )
+    luaunit.assertAlmostEquals( tokens[1][2], 3, 0.1 )
+    luaunit.assertEquals( tokens[2][1], TK_OP_PLUS )
+    luaunit.assertAlmostEquals( tokens[3][2], 4, 0.1 )
+    luaunit.assertEquals( tokens[4][1], TK_OP_MINUS )
+    luaunit.assertAlmostEquals( tokens[5][2], 2.3, 0.1 )
 end
 
 function testInfix2RPN_Shunting_Yard()
     local input_str = "3 + 4.3 x 7"
-    tokens = Tokenize( input_str )
-    result = Infix2RPN_Shunting_Yard( tokens )
+    local tokens = Tokenize( input_str )
+    local result = Infix2RPN_Shunting_Yard( tokens )
     luaunit.assertEquals( #result, 5 )
 
-    input_str = "3 + 4 x 2 / ( 1 - 5 ) ^ 2 ^ 3"
+    local input_str = "3 + 4 x 2 / ( 1 - 5 ) ^ 2 ^ 3"
     tokens = Tokenize( input_str )
     result = Infix2RPN_Shunting_Yard( tokens )
 end
@@ -503,7 +601,6 @@ function testSolve_RPN_01()
     tokens = Tokenize( input_str )
     rpn_tokens = Infix2RPN_Shunting_Yard( tokens )
     result = Solve_RPN( rpn_tokens )
-    print( "%d, %d", result[1], result[2] )
     luaunit.assertAlmostEquals( result[2], 33.1, 0.1 )
 end
 
@@ -515,9 +612,22 @@ function testSolve_RPN_02()
     luaunit.assertAlmostEquals( result[2], 3.0001, 0.1 )
 end
 
-function testDraw_Terminal()
-    result = "3 + 4 x 7"
-    Draw_Terminal( result )
+function testSolve_RPN_03()
+
+    local console_text = "3+4x2"
+
+    -- Tokenize the input string
+    infix_tokens = Tokenize( console_text )
+        
+    -- Convert to RPN
+    local rpn_tokens = Infix2RPN_Shunting_Yard( infix_tokens )
+    Print_Tokens( rpn_tokens, 16, 2 )
+
+    -- Compute the result
+    result = Solve_RPN( rpn_tokens )
+    console_text = string.format( "%d", result[2] )
+    luaunit.assertAlmostEquals( result[2], 11, 0.1 )
+    print(console_text)
 end
 
 os.exit( luaunit.LuaUnit.run() )

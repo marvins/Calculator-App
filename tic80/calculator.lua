@@ -3,7 +3,7 @@
 -- desc:   Simple calculator solver
 -- script: lua
 
-console_text = "3 + 4 x 2 / ( 1 - 5 )"
+console_text = "3 + 4 x 2"
 
 cursor_x = 0
 cursor_y = 0
@@ -91,19 +91,19 @@ SCR_KEY_PGU = { 196,  70, 234,   82, "PGU",  0, { TK_TASK_PGUP } }
 LEFT = 0
 RIGHT = 1
 
-function Print_Token( token )
+function Print_Token( token, x, y )
     if( #token > 1 ) then
-        print( string.format( "%d, %d %f", #token, token[1], token[2] ) )
+        print( string.format( "%d, %d %f", #token, token[1], token[2] ), x, y )
     else
-        print( string.format( "%d, %d", #token, token[1] ) )
+        print( string.format( "%d, %d", #token, token[1] ), x, y )
     end
 end
 
-function Print_Tokens( tokens )
+function Print_Tokens( tokens, x, y )
     -- Print Tokens
     for idx = 1, #tokens, 1
     do 
-        Print_Token( tokens[idx] )
+        Print_Token( tokens[idx], x, y + (8*idx) )
     end
 end
 
@@ -162,36 +162,118 @@ function Is_Function( token )
     end
 end
 
+function Is_Char_Number( value )
+    if ( ( value == "." ) or
+         ( value == "0" ) or
+         ( value == "1" ) or
+         ( value == "2" ) or
+         ( value == "3" ) or
+         ( value == "4" ) or
+         ( value == "5" ) or
+         ( value == "6" ) or
+         ( value == "7" ) or
+         ( value == "8" ) or
+         ( value == "9" ) ) then
+            return true
+    else
+        return false
+    end
+end
+
 function Print( text, cx, cy, color )
     print( text, cx, cy, color ) 
 end
 
 function Tokenize( input_str )
     tokens = {}
-    for str in string.gmatch( input_str, "%S+" )
+    working_str = ""
+    working_tk  = nil
+
+    -- Iterate over each character in the string
+    for idx = 1, #input_str, 1 
     do
-        -- Check for + operator
-        local value = nil
-        if ( str == "+" ) then
-            value = { TK_OP_PLUS }
-        elseif( str == "-" ) then  
-            value = { TK_OP_MINUS }
-        elseif( str == "x" ) then
-            value = { TK_OP_TIMES }
-        elseif( str == "/" ) then
-            value = { TK_OP_DIV }
-        elseif( str == "^" ) then
-            value = { TK_OP_POWER }
-        elseif( str == "(" ) then
-            value = { TK_OP_LPAR }
-        elseif( str == ")" ) then
-            value = { TK_OP_RPAR }
-        else
-            value = { TK_NUMBER, tonumber(str) }
+
+        -- Check if character is parenthesis
+        if ( string.sub( input_str, idx, idx ) == "(" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_LPAR } )
+
+        elseif ( string.sub( input_str, idx, idx ) == ")" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_RPAR } )
+
+        -- Check if character is an operator
+        elseif ( string.sub( input_str, idx, idx ) == "+" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_PLUS } )
+
+        elseif( string.sub( input_str, idx, idx ) == "-" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_MINUS } )
+
+        elseif( string.sub( input_str, idx, idx ) == "x" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_TIMES } )
+
+        elseif( string.sub( input_str, idx, idx ) == "/" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_DIV } )
+
+        elseif( string.sub( input_str, idx, idx ) == "^" ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
+            table.insert( tokens, { TK_OP_POWER } )
+        
+        -- Check if number
+        elseif( Is_Char_Number( string.sub( input_str, idx, idx ) ) ) then
+            if ( working_tk == nil ) then
+                working_tk = TK_NUMBER
+            end
+            working_str = working_str .. string.sub( input_str, idx, idx )
+
+        -- Blank Character
+        elseif ( string.sub( input_str, idx, idx ) == " " ) then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            end
+            working_str = ""
+            working_tk  = nil
         end
-        table.insert( tokens, value )
-    end    
+
+    end
    
+    -- Cleanup
+    if( working_tk == TK_NUMBER ) then
+        table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+    end
+
     return tokens
 end
 
@@ -435,11 +517,12 @@ function TIC()
             infix_tokens = Tokenize( console_text )
         
             -- Convert to RPN
-            rpn_tokens = Infix2RPN_Shunting_Yard( infix_tokens )
-      
+            local rpn_tokens = Infix2RPN_Shunting_Yard( infix_tokens )
+
             -- Compute the result
-            result = Solve_RPN( rpn_tokens )
-            console_text = string.format( "%d", result[2] )
+            local res = Solve_RPN( rpn_tokens )
+            console_text = string.format( "%d", res[2] )
+            CURSOR_LOCK = true
 
         elseif ( token[1] == TK_TASK_CLR ) then
             console_text = ""
@@ -465,9 +548,8 @@ function TIC()
     end
 
     Draw_Terminal( console_text )
-    
     print( other_text, 8*2, 8*5 )
-    print( string.format( "> LOCK: %s", CURSOR_LOCK ), 8*2, 8*8 )
+    
 end
 
 -- <TILES>
