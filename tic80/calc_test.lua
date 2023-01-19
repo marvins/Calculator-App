@@ -13,6 +13,8 @@ luaunit = require('luaunit')
 cursor_x = 0
 cursor_y = 0
 
+CURSOR_LOCK = false
+
 COLOR_RED   =  2
 COLOR_LBLUE = 10
 COLOR_WHITE = 12
@@ -20,14 +22,76 @@ COLOR_WHITE = 12
 CELL_H = 8
 CELL_W = 8
 
-TK_OP_PLUS  = 1
-TK_OP_MINUS = 2
-TK_OP_TIMES = 3
-TK_OP_DIV   = 4
-TK_OP_POWER = 5
-TK_OP_LPAR  = 6
-TK_OP_RPAR  = 7
-TK_NUMBER   = 8
+CURRENT_PAGE = 1
+
+TK_OP_PLUS    = 1
+TK_OP_MINUS   = 2
+TK_OP_TIMES   = 3
+TK_OP_DIV     = 4
+TK_OP_POWER   = 5
+TK_OP_LPAR    = 6
+TK_OP_RPAR    = 7
+TK_NUMBER     = 8
+TK_TASK_QUIT  = 9
+TK_TASK_CLR   = 10
+TK_TASK_SOLVE = 11
+TK_TASK_PGDN  = 12
+TK_TASK_PGUP  = 13
+TK_FUNC_TAN   = 14
+TK_FUNC_ATN   = 15
+TK_FUNC_SIN   = 16
+TK_FUNC_ASN   = 17
+TK_FUNC_COS   = 18
+TK_FUNC_ACS   = 19
+
+
+SPR_BLANK  = 27
+SPR_A      = 32
+SPR_Z      = 57
+SPR_0      = 16
+SPR_9      = 25
+SPR_DOT    = 26
+SPR_PLUS   = 64
+SPR_MINUS  = 65
+SPR_DIVIDE = 66
+SPR_TIMES  = 67
+SPR_POWER  = 68
+SPR_START  = 69
+SPR_LPARAM = 70
+SPR_RPARAM = 71
+
+-- Screen Button Bounds
+SCR_KEY_CLR = {   6, 116,  34,  130, "CLR",  1, { TK_TASK_CLR } }
+SCR_KEY_0   = {  36, 116,  66,  130, "0",    1, { TK_NUMBER, "0" } }
+SCR_KEY_DOT = {  68, 116,  98,  130, ".",    1, { TK_NUMBER, "." } }
+SCR_KEY_DIV = { 100, 116, 130,  130, "/",    1, { TK_OP_DIV, "/" } }
+SCR_KEY_LPM = { 132, 116, 162,  130, "(",    1, { TK_OP_LPAR, "(" } }
+SCR_KEY_RPM = { 164, 116, 194,  130, ")",    1, { TK_OP_RPAR, ")" } }
+SCR_KEY_QUT = { 196, 116, 234,  130, "QUIT", 0, { TK_TASK_QUIT } }
+
+SCR_KEY_1   = {   6, 102,  34,  114, "1",    1, { TK_NUMBER, "1" } }
+SCR_KEY_2   = {  36, 102,  66,  114, "2",    1, { TK_NUMBER, "2" } }
+SCR_KEY_3   = {  68, 102,  98,  114, "3",    1, { TK_NUMBER, "3" } }
+SCR_KEY_TIM = { 100, 102, 130,  114, "x",    1, { TK_OP_TIMES, "x" } }
+SCR_KEY_TAN = { 132, 102, 162,  114, "TAN",  1, { TK_FUNC_TAN, "TAN" } }
+SCR_KEY_ATN = { 164, 102, 194,  114, "ATN",  1, { TK_FUNC_ATN, "ATAN" } }
+SCR_KEY_SLV = { 196, 102, 234,  114, "SLV",  1, { TK_TASK_SOLVE } }
+
+SCR_KEY_4   = {   6,  86,  34,   96, "4",    1, { TK_NUMBER, "4" } }
+SCR_KEY_5   = {  36,  86,  66,   96, "5",    1, { TK_NUMBER, "5" } }
+SCR_KEY_6   = {  68,  86,  98,   96, "6",    1, { TK_NUMBER, "6" } }
+SCR_KEY_SUB = { 100,  86, 130,   96, "-",    1, { TK_OP_MINUS, "-" } }
+SCR_KEY_COS = { 132,  86, 162,   96, "COS",  1, { TK_FUNC_COS, "COS" } }
+SCR_KEY_ACS = { 164,  86, 194,   96, "ACS",  1, { TK_FUNC_ACS, "ACOS" } }
+SCR_KEY_PGD = { 196,  86, 234,   96, "PGD",  0, { TK_TASK_PGDN } }
+
+SCR_KEY_7   = {   6,  70,  34,   82, "7",    1, { TK_NUMBER, "7" } }
+SCR_KEY_8   = {  36,  70,  66,   82, "8",    1, { TK_NUMBER, "8" } }
+SCR_KEY_9   = {  68,  70,  98,   82, "9",    1, { TK_NUMBER, "9" } }
+SCR_KEY_PLS = { 100,  70, 130,   82, "+",    1, { TK_OP_PLUS, "+" } }
+SCR_KEY_SIN = { 132,  70, 162,   82, "SIN",  1, { TK_FUNC_SIN, "SIN" } }
+SCR_KEY_ASN = { 164,  70, 194,   82, "ASN",  1, { TK_FUNC_ASN, "ASIN" } }
+SCR_KEY_PGU = { 196,  70, 234,   82, "PGU",  0, { TK_TASK_PGUP } }
 
 LEFT = 0
 RIGHT = 1
@@ -74,6 +138,37 @@ function Associativity( operator )
     elseif ( operator == TK_OP_POWER ) then
         return RIGHT
     end
+end
+
+function Is_Operator( token )
+    if ( ( token[1] == TK_OP_PLUS ) or
+         ( token[1] == TK_OP_MINUS ) or
+         ( token[1] == TK_OP_TIMES ) or
+         ( token[1] == TK_OP_DIV ) or
+         ( token[1] == TK_OP_POWER ) or
+         ( token[1] == TK_OP_LPAR ) or 
+         ( token[1] == TK_OP_RPAR ) ) then
+        return true
+    else
+        return false
+    end
+end
+
+function Is_Function( token )
+    if ( ( token[1] == TK_FUNC_TAN ) or
+         ( token[1] == TK_FUNC_ATN ) or
+         ( token[1] == TK_FUNC_SIN ) or
+         ( token[1] == TK_FUNC_ASN ) or
+         ( token[1] == TK_FUNC_COS ) or
+         ( token[1] == TK_FUNC_ACS ) ) then
+        return true
+    else
+        return false
+    end
+end
+
+function Print( text, cx, cy, color )
+    print( text, cx, cy, color ) 
 end
 
 function Tokenize( input_str )
@@ -214,6 +309,175 @@ function Solve_RPN( tokens )
     return operand_queue[#operand_queue]
 end
 
+function spr( value, x, y, z ) 
+    print( "%s", value )
+end
+
+function Draw_Terminal( text )
+    
+    -- for each letter of text, find a sprite
+    sprite_list = {}
+    table.insert( sprite_list, SPR_START )
+    table.insert( sprite_list, SPR_BLANK )
+
+    for i = 1, #text do
+       local c = text:sub(i,i)
+       
+        -- Check if Blank
+        if ( c == " " ) then
+            table.insert( sprite_list, SPR_BLANK )
+
+        -- Check if Letter
+        elseif ( c >= "A" and c <= "Z" ) then
+            c = 0
+        
+        -- Check if Parenthesis
+        elseif ( c == "(" ) then
+            table.insert( sprite_list, SPR_LPARAM )
+        elseif ( c == ")" ) then
+            table.insert( sprite_list, SPR_RPARAM )
+    
+        -- Check if Number
+        elseif ( string.byte(c) >= string.byte("0") and string.byte(c) <= string.byte("9") ) then
+            table.insert( sprite_list, SPR_0 + ( string.byte(c) - string.byte("0") ) )        
+    
+    --    -- Check if Operator
+        elseif ( c == "+" ) then
+            table.insert( sprite_list, SPR_PLUS )
+        
+        elseif ( c == "-" ) then
+            table.insert( sprite_list, SPR_MINUS )
+    
+        elseif ( c == "x" ) then
+            table.insert( sprite_list, SPR_TIMES )
+    
+        elseif ( c == "/" ) then
+            table.insert( sprite_list, SPR_DIVIDE )
+    
+        elseif ( c == "^" ) then
+            table.insert( sprite_list, SPR_POWER )
+        
+        elseif ( c == '.' ) then
+            table.insert( sprite_list, SPR_DOT )
+       end
+    end
+    
+    -- Draw Each Sprite
+    x = 0
+    for key,sprite_id in ipairs( sprite_list ) do 
+        spr( sprite_id, 8 * ( 2 + x ), 8 * 4, 0 )
+        x = x + 1
+    end
+end
+
+function Detect_Token( mx, my )
+
+    other_text2 = " matches: "
+    other_text3 = " --> " .. string.format( "%d, %d", mx, my )
+    KEY_LIST = {}
+    table.insert( KEY_LIST, SCR_KEY_CLR )
+    table.insert( KEY_LIST, SCR_KEY_0 )
+    table.insert( KEY_LIST, SCR_KEY_DOT )
+    table.insert( KEY_LIST, SCR_KEY_DIV )
+    table.insert( KEY_LIST, SCR_KEY_LPM )
+    table.insert( KEY_LIST, SCR_KEY_RPM )
+    table.insert( KEY_LIST, SCR_KEY_QUT )
+
+    table.insert( KEY_LIST, SCR_KEY_1 )
+    table.insert( KEY_LIST, SCR_KEY_2 )
+    table.insert( KEY_LIST, SCR_KEY_3 )
+    table.insert( KEY_LIST, SCR_KEY_TIM )
+    table.insert( KEY_LIST, SCR_KEY_TAN )
+    table.insert( KEY_LIST, SCR_KEY_ATN )
+    table.insert( KEY_LIST, SCR_KEY_SLV )
+
+    table.insert( KEY_LIST, SCR_KEY_4 )
+    table.insert( KEY_LIST, SCR_KEY_5 )
+    table.insert( KEY_LIST, SCR_KEY_6 )
+    table.insert( KEY_LIST, SCR_KEY_SUB )
+    table.insert( KEY_LIST, SCR_KEY_COS )
+    table.insert( KEY_LIST, SCR_KEY_ACS )
+    table.insert( KEY_LIST, SCR_KEY_PGD )
+
+    table.insert( KEY_LIST, SCR_KEY_7 )
+    table.insert( KEY_LIST, SCR_KEY_8 )
+    table.insert( KEY_LIST, SCR_KEY_9 )
+    table.insert( KEY_LIST, SCR_KEY_PLS )
+    table.insert( KEY_LIST, SCR_KEY_SIN )
+    table.insert( KEY_LIST, SCR_KEY_ASN )
+    table.insert( KEY_LIST, SCR_KEY_PGU )
+
+    -- check the bounds
+    output = nil
+    for idx = 1, #KEY_LIST, 1 do
+        if ( ( mx >= KEY_LIST[idx][1] ) and ( my >= KEY_LIST[idx][2] ) and ( mx <= KEY_LIST[idx][3] ) and ( my <= KEY_LIST[idx][4] ) ) then
+            other_text2 = other_text2 .. string.format( "%d [%s], ", idx, KEY_LIST[idx][5] )
+            output = KEY_LIST[idx][7]
+            break
+        end
+    end
+    print( other_text2, 8*2, 8*6 )
+    print( other_text3, 8*2, 8*7 )
+    return output
+end
+
+function TIC()
+
+    -- clear screen
+    cls()
+
+   map( 0, 0, 30, 17 )
+
+    -- Check the Mouse input
+    other_text = "$> "
+    mx,my,md = mouse()
+    if ( ( md == true ) and ( CURSOR_LOCK == false ) ) then
+        token = Detect_Token( mx, my )
+        
+        if ( token == nil ) then
+            -- do nothing
+        elseif ( token[1] == TK_TASK_QUIT ) then
+            exit()
+        elseif ( token[1] == TK_TASK_SOLVE ) then
+
+            -- Tokenize the input string
+            infix_tokens = Tokenize( console_text )
+        
+            -- Convert to RPN
+            rpn_tokens = Infix2RPN_Shunting_Yard( infix_tokens )
+      
+            -- Compute the result
+            result = Solve_RPN( rpn_tokens )
+            console_text = string.format( "%d", result[2] )
+
+        elseif ( token[1] == TK_TASK_CLR ) then
+            console_text = ""
+            CURSOR_LOCK = true
+            other_text = other_text .. "CLS"
+        elseif ( token[1] == TK_NUMBER ) then
+            console_text = console_text .. token[2]
+            CURSOR_LOCK = true
+            other_text = other_text .. "NUM: " .. token[2]
+        elseif ( Is_Operator( token ) ) then
+            console_text = console_text .. token[2]
+            CURSOR_LOCK = true
+            other_text = other_text .. "OP: " .. token[2]
+        elseif ( Is_Function( token ) ) then
+            console_text = console_text .. token[2]
+            CURSOR_LOCK = true
+            other_text = other_text .. "FUNC: " .. token[2]
+        else
+            -- do nothing for the moment
+        end
+    elseif ( ( md == false ) and ( CURSOR_LOCK == true ) ) then
+        CURSOR_LOCK = false
+    end
+
+    Draw_Terminal( console_text )
+    
+    print( other_text, 8*2, 8*5 )
+    print( string.format( "> LOCK: %s", CURSOR_LOCK ), 8*2, 8*8 )
+end
 
 function testTokenize()
     -- Test the tokenize function
@@ -240,7 +504,7 @@ function testSolve_RPN_01()
     rpn_tokens = Infix2RPN_Shunting_Yard( tokens )
     result = Solve_RPN( rpn_tokens )
     print( "%d, %d", result[1], result[2] )
-    luaunit.assertAlmostEquals( result[2], 30.1, 0.1 )
+    luaunit.assertAlmostEquals( result[2], 33.1, 0.1 )
 end
 
 function testSolve_RPN_02()
@@ -248,10 +512,13 @@ function testSolve_RPN_02()
     tokens = Tokenize( input_str )
     rpn_tokens = Infix2RPN_Shunting_Yard( tokens )
     result = Solve_RPN( rpn_tokens )
-    print( "%d, %d", result[1], result[2] )
     luaunit.assertAlmostEquals( result[2], 3.0001, 0.1 )
 end
 
+function testDraw_Terminal()
+    result = "3 + 4 x 7"
+    Draw_Terminal( result )
+end
 
 os.exit( luaunit.LuaUnit.run() )
 
