@@ -43,6 +43,7 @@ TK_FUNC_SIN   = 16
 TK_FUNC_ASN   = 17
 TK_FUNC_COS   = 18
 TK_FUNC_ACS   = 19
+TK_FUNC_UNK   = 20
 
 
 SPR_BLANK  = 27
@@ -182,6 +183,22 @@ function Is_Char_Number( value )
             return true
     else
         return false
+    end
+end
+
+function String_To_Function( input_str )
+    if ( input_str == "SIN" ) then
+        return TK_FUNC_SIN
+    elseif ( input_str == "COS" ) then
+        return TK_FUNC_COS 
+    elseif ( input_str == "TAN" ) then
+        return TK_FUNC_TAN
+    elseif ( input_str == "ASIN" ) then
+        return TK_FUNC_ASN
+    elseif ( input_str == "ACOS" ) then
+        return TK_FUNC_ACS
+    elseif ( input_str == "ATN" ) then
+        return TK_FUNC_ATN
     end
 end
 

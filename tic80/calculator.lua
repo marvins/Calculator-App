@@ -38,14 +38,15 @@ TK_FUNC_SIN   = 16
 TK_FUNC_ASN   = 17
 TK_FUNC_COS   = 18
 TK_FUNC_ACS   = 19
+TK_FUNC_UNK   = 20
 
 
-SPR_BLANK  = 27
-SPR_A      = 32
-SPR_Z      = 57
 SPR_0      = 16
 SPR_9      = 25
 SPR_DOT    = 26
+SPR_BLANK  = 27
+SPR_A      = 32
+SPR_Z      = 57
 SPR_PLUS   = 64
 SPR_MINUS  = 65
 SPR_DIVIDE = 66
@@ -197,6 +198,8 @@ function Tokenize( input_str )
         if ( string.sub( input_str, idx, idx ) == "(" ) then
             if( working_tk == TK_NUMBER ) then
                 table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == TK_FUNC_UNK ) then
+                table.insert( tokens, { String_To_Function( working_str ) } )
             end
             working_str = ""
             working_tk  = nil
@@ -205,6 +208,8 @@ function Tokenize( input_str )
         elseif ( string.sub( input_str, idx, idx ) == ")" ) then
             if( working_tk == TK_NUMBER ) then
                 table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == TK_FUNC_UNK ) then
+                table.insert( tokens, { String_To_Function( working_str ) } )
             end
             working_str = ""
             working_tk  = nil
@@ -214,6 +219,8 @@ function Tokenize( input_str )
         elseif ( string.sub( input_str, idx, idx ) == "+" ) then
             if( working_tk == TK_NUMBER ) then
                 table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == TK_FUNC_UNK ) then
+                table.insert( tokens, { String_To_Function( working_str ) } )
             end
             working_str = ""
             working_tk  = nil
@@ -222,6 +229,8 @@ function Tokenize( input_str )
         elseif( string.sub( input_str, idx, idx ) == "-" ) then
             if( working_tk == TK_NUMBER ) then
                 table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == TK_FUNC_UNK ) then
+                table.insert( tokens, { String_To_Function( working_str ) } )
             end
             working_str = ""
             working_tk  = nil
@@ -230,6 +239,8 @@ function Tokenize( input_str )
         elseif( string.sub( input_str, idx, idx ) == "x" ) then
             if( working_tk == TK_NUMBER ) then
                 table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == TK_FUNC_UNK ) then
+                table.insert( tokens, { String_To_Function( working_str ) } )
             end
             working_str = ""
             working_tk  = nil
@@ -238,6 +249,8 @@ function Tokenize( input_str )
         elseif( string.sub( input_str, idx, idx ) == "/" ) then
             if( working_tk == TK_NUMBER ) then
                 table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == TK_FUNC_UNK ) then
+                table.insert( tokens, { String_To_Function( working_str ) } )
             end
             working_str = ""
             working_tk  = nil
@@ -246,6 +259,8 @@ function Tokenize( input_str )
         elseif( string.sub( input_str, idx, idx ) == "^" ) then
             if( working_tk == TK_NUMBER ) then
                 table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == TK_FUNC_UNK ) then
+                table.insert( tokens, { String_To_Function( working_str ) } )
             end
             working_str = ""
             working_tk  = nil
@@ -253,7 +268,9 @@ function Tokenize( input_str )
         
         -- Check if number
         elseif( Is_Char_Number( string.sub( input_str, idx, idx ) ) ) then
-            if ( working_tk == nil ) then
+            if ( working_tk == TK_FUNC_UNK ) then
+                -- do nothing
+            elseif ( working_tk == nil ) then
                 working_tk = TK_NUMBER
             end
             working_str = working_str .. string.sub( input_str, idx, idx )
@@ -262,9 +279,24 @@ function Tokenize( input_str )
         elseif ( string.sub( input_str, idx, idx ) == " " ) then
             if( working_tk == TK_NUMBER ) then
                 table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == TK_FUNC_UNK ) then
+                table.insert( tokens, { String_To_Function( working_str ) } )
             end
             working_str = ""
             working_tk  = nil
+
+        -- Character
+        elseif ( ( ( string.byte( string.sub( input, idx, idx ) ) >= string.byte( "A" ) ) and
+                   ( string.byte( string.sub( input, idx, idx ) ) <= string.byte( "Z" ) ) ) or
+                 ( ( string.byte( string.sub( input, idx, idx ) ) >= string.byte( "a" ) ) and
+                   ( string.byte( string.sub( input, idx, idx ) ) <= string.byte( "z" ) ) ) )
+        then
+            if( working_tk == TK_NUMBER ) then
+                table.insert( tokens, { TK_NUMBER, tonumber( working_str ) } )
+            elseif ( working_tk == nil ) then
+                working_tk = TK_NUMBER
+            end
+            working_str = working_str .. string.sub( input_str, idx, idx )
         end
 
     end
@@ -290,6 +322,12 @@ function Process_Operator_Token( token )
         method = function ( opands ) return { TK_NUMBER, ( opands[#opands-1][2] / opands[#opands][2] ) } end
     elseif ( token[1] == TK_OP_POWER ) then
         method = function ( opands ) return { TK_NUMBER, math.pow( opands[#opands-1][2], opands[#opands][2] ) } end
+    elseif ( token[1] == TK_FUNC_SIN ) then
+        method = function ( opands ) return { TK_NUMBER, math.sin( opands[#opands][2] ) } end
+    elseif ( token[1] == TK_FUNC_COS ) then
+        method = function ( opands ) return { TK_NUMBER, math.sin( opands[#opands][2] ) } end
+    elseif ( token[1] == TK_FUNC_TAN ) then
+        method = function ( opands ) return { TK_NUMBER, math.tan( opands[#opands][2] ) } end
     end
     return { method, num_params }
 end
@@ -399,22 +437,22 @@ function Draw_Terminal( text )
         -- Check if Blank
         if ( c == " " ) then
             table.insert( sprite_list, SPR_BLANK )
-
-        -- Check if Letter
-        elseif ( c >= "A" and c <= "Z" ) then
-            c = 0
         
         -- Check if Parenthesis
         elseif ( c == "(" ) then
             table.insert( sprite_list, SPR_LPARAM )
         elseif ( c == ")" ) then
             table.insert( sprite_list, SPR_RPARAM )
+
+        -- Check if Letter
+        elseif ( string.byte(c) >= string.byte("A") and string.byte(c) <= string.byte("Z") ) then
+            table.insert( sprite_list, SPR_A + ( string.byte(c) - string.byte("A") ) )
     
         -- Check if Number
         elseif ( string.byte(c) >= string.byte("0") and string.byte(c) <= string.byte("9") ) then
             table.insert( sprite_list, SPR_0 + ( string.byte(c) - string.byte("0") ) )        
     
-    --    -- Check if Operator
+        -- Check if Operator
         elseif ( c == "+" ) then
             table.insert( sprite_list, SPR_PLUS )
         
@@ -528,18 +566,22 @@ function TIC()
             console_text = ""
             CURSOR_LOCK = true
             other_text = other_text .. "CLS"
+
         elseif ( token[1] == TK_NUMBER ) then
             console_text = console_text .. token[2]
             CURSOR_LOCK = true
             other_text = other_text .. "NUM: " .. token[2]
+
         elseif ( Is_Operator( token ) ) then
             console_text = console_text .. token[2]
             CURSOR_LOCK = true
             other_text = other_text .. "OP: " .. token[2]
+
         elseif ( Is_Function( token ) ) then
             console_text = console_text .. token[2]
             CURSOR_LOCK = true
             other_text = other_text .. "FUNC: " .. token[2]
+
         else
             -- do nothing for the moment
         end
